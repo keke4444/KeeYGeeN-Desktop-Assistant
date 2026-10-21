@@ -2,7 +2,7 @@
 ; 编译：ISCC.exe installer\KeeYGeeN桌面助手.iss
 
 #define MyAppName "KeeYGeeN桌面助手"
-#define MyAppVersion "0.13.2"
+#define MyAppVersion "0.13.3"
 #define MyAppPublisher "KeeYGeeN"
 #define MyAppExeName "KeeYGeeN桌面助手.exe"
 

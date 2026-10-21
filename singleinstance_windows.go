@@ -38,13 +38,23 @@ func ensureSingleInstance() bool {
 		return true
 	}
 
-	// 已有实例：最多等 6 秒让它的主窗口就绪
+	// 已有实例：最多等 6 秒让它的主窗口就绪，然后反复尝试唤出到前台
 	deadline := time.Now().Add(6 * time.Second)
 	for time.Now().Before(deadline) {
 		if w := findMainWindow(); w != 0 {
-			procShowWindow.Call(w, swShowNormal)
-			procShowWindow.Call(w, swRestore)
-			procSetForegroundWnd.Call(w)
+			// SW_RESTORE/SetForegroundWindow 在对方繁忙时可能失败，重试几次
+			for i := 0; i < 6; i++ {
+				procShowWindow.Call(w, swRestore)
+				procShowWindow.Call(w, swShowNormal)
+				procBringWindowToTop.Call(w)
+				procSetForegroundWnd.Call(w)
+				if isWindowVisible(w) {
+					procCloseHandle.Call(h)
+					return false
+				}
+				time.Sleep(150 * time.Millisecond)
+			}
+			// 窗口可见就算唤出成功（前台可能被其它程序抢占）
 			procCloseHandle.Call(h)
 			return false
 		}
