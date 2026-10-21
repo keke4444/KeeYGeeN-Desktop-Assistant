@@ -1,0 +1,18 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "dtidy",
+  "outputfilename": "KeeYGeeN桌面助手",
+  "frontend:install": "",
+  "frontend:build": "",
+  "frontend:dev:watcher": "",
+  "frontend:dev:serverUrl": "",
+  "assetdir": "frontend/dist",
+  "wailsjsdir": "frontend/wailsjs",
+  "info": {
+    "companyName": "KeeYGeeN",
+    "productName": "KeeYGeeN桌面助手",
+    "productVersion": "0.13.1",
+    "copyright": "",
+    "comments": "桌面归类工具"
+  }
+}

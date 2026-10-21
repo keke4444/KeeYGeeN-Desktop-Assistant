@@ -1,0 +1,31 @@
+# 构建产物与本地数据
+/build/bin/
+/dist/
+/versions/
+*.exe
+*.msi
+*.dmg
+*.zip
+*.app/
+
+# 个人数据与素材（不上传）
+bg.png
+预设背景.png
+/assets/personal/
+docs/screenshots/personal/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 本地配置
+*.local.toml
+config.toml
+recent.json
+
+/dist-clean/
+/background.jpg
+

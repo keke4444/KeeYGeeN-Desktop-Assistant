@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KeeYGeeN桌面助手</title>
+  <link rel="stylesheet" href="./app.css?v=22" />
+</head>
+<body>
+  <div class="bg-layer" id="bgLayer"></div>
+  <div class="app" id="appRoot">
+    <aside class="sidebar">
+      <div class="side-head">
+        <img class="side-logo" src="./logo.png?v=2" alt="KeeYGeeN" draggable="false" />
+        <div>
+          <strong>KeeYGeeN桌面助手</strong>
+          <small id="desktopPath">读取中…</small>
+        </div>
+      </div>
+
+      <div class="side-search">
+        <span class="search-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.2 4.2"/></svg>
+        </span>
+        <input id="searchInput" placeholder="搜索桌面和 home…" autocomplete="off" spellcheck="false" title="输入后按 Tab 显示候选；↑↓ 或 − + 切换，Enter 打开">
+        <button class="search-clear" id="btnClearSearch" title="清空搜索" hidden>×</button>
+        <div class="search-scope" id="searchScope">
+          <button data-scope="global" title="搜索桌面、home 与已打开文件夹">全局</button>
+          <button data-scope="current" title="只在当前文件夹中搜索">当前</button>
+        </div>
+        <div class="search-pop" id="searchPop" hidden></div>
+      </div>
+
+      <div class="side-section">位置</div>
+      <div class="tree" id="tree"></div>
+
+      <div class="side-section">分类
+        <button class="add-btn" id="btnAddCat" title="新建分类">+</button>
+      </div>
+      <div class="cats" id="catList"></div>
+
+      <div class="side-status">
+        <div class="status-left" id="selectionInfo">未选择文件</div>
+        <div class="move-wrap">
+          <button class="btn primary small" id="btnMove" disabled>移动到…</button>
+          <div class="menu" id="moveMenu" hidden></div>
+        </div>
+      </div>
+
+      <div class="side-foot">
+        <button class="mini" id="btnUndo">撤销上一步</button>
+        <button class="mini" id="btnRefresh">刷新</button>
+        <div class="ver" id="verText"></div>
+      </div>
+    </aside>
+
+    <div class="splitter" id="splitter" title="拖动调整侧栏宽度"></div>
+
+    <main class="main">
+      <div class="pathbar">
+        <button class="icon-btn" id="btnUp" title="上一级">↑</button>
+        <div class="crumbs" id="crumbs"></div>
+        <div class="path-actions">
+          <button class="icon-btn" id="btnSettings" title="设置">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+          </button>
+          <div class="view-switch">
+            <button class="view-btn" id="btnViewGrid" title="图标视图">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.2"/></svg>
+            </button>
+            <button class="view-btn" id="btnViewList" title="列表视图">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 6.5H20M8.5 12H20M8.5 17.5H20"/><path d="M4.2 6.5h.6M4.2 12h.6M4.2 17.5h.6"/></svg>
+            </button>
+          </div>
+          <button class="btn ghost" id="btnRevealDir">在资源管理器中打开</button>
+        </div>
+      </div>
+
+      <div class="recent-tabbar" id="recentTabBar" hidden></div>
+
+      <div class="table">
+        <div class="thead" id="thead">
+          <div class="col-name">名称</div>
+          <div class="col-type">类型</div>
+          <div class="col-size">大小</div>
+          <div class="col-time">修改时间</div>
+        </div>
+        <div class="tbody" id="tbody"></div>
+        <div class="empty" id="emptyState" hidden>
+          <h2>这里没有文件</h2>
+          <p>把桌面上的文件拖到左侧分类，就能把它们归位。</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-mask" id="modalMask" hidden>
+    <div class="modal">
+      <h3 id="modalTitle">结果</h3>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot"><button class="btn primary" id="modalClose">知道了</button></div>
+    </div>
+  </div>
+
+  <div class="ctx" id="ctxMenu" hidden></div>
+  <div class="toast" id="toast" hidden></div>
+
+  <div class="region-mask" id="regionMask" hidden>
+    <div class="region-hint">按住鼠标拖拽框选背景区域 · Esc 取消</div>
+    <div class="region-box" id="regionBox" hidden></div>
+  </div>
+
+  <div class="modal-mask" id="settingsMask" hidden>
+    <div class="modal settings-modal">
+      <div class="modal-head">
+        <h3>设置</h3>
+        <button class="modal-x" id="btnCloseSettings" title="关闭">×</button>
+      </div>
+      <div class="set-body">
+        <div class="set-row">
+          <label>桌面路径</label>
+          <div class="set-inline">
+            <span class="path-text" id="desktopPathVal" title="">未设置</span>
+            <button class="btn ghost" id="btnPickDesktop">选择…</button>
+          </div>
+          <small>桌面上的文件是整理对象；切换后 home 会自动指向该目录下的 home</small>
+        </div>
+
+        <div class="set-row">
+          <label>home 路径</label>
+          <div class="set-inline">
+            <span class="path-text" id="homePathVal" title="">未设置</span>
+            <button class="btn ghost" id="btnPickHome">选择…</button>
+          </div>
+          <small>分类存放位置；若所选文件夹不叫 home，会先提示在该目录下创建 home</small>
+        </div>
+
+        <div class="set-row">
+          <label>召唤热键</label>
+          <input class="set-input" id="hotkeyInput" placeholder="点击后按下组合键，例如 Ctrl+Alt+D" readonly>
+          <small id="hotkeyHint">按 Esc 可清除；保存后立即生效</small>
+        </div>
+
+        <div class="set-row">
+          <label>DIY 背景</label>
+          <div class="set-inline">
+            <button class="btn ghost" id="btnPickBg">选择图片…</button>
+            <button class="btn ghost" id="btnClearBg">清除</button>
+            <span class="set-name" id="bgName">未设置</span>
+          </div>
+          <small>支持 png / jpg / gif / webp / bmp；gif、webp 动图会保留动画</small>
+        </div>
+
+        <div class="set-row">
+          <label>背景透明度 <b id="opacityVal">35%</b></label>
+          <input type="range" id="opacityRange" min="5" max="100" value="35">
+        </div>
+
+        <div class="set-row">
+          <label>背景作用域</label>
+          <div class="seg" id="scopeSeg">
+            <button data-scope="window">全局</button>
+            <button data-scope="main">仅文件区</button>
+            <button data-scope="custom">拉选</button>
+          </div>
+          <div class="set-inline" id="customScopeWrap" hidden>
+            <button class="btn ghost" id="btnPickRegion">在界面上拖拽框选…</button>
+            <span class="set-name" id="regionName">未设置</span>
+          </div>
+          <small>「仅文件区」会跟随侧边栏位置自动调整；「拉选」可在主界面上拖出任意区域</small>
+        </div>
+
+        <div class="set-row">
+          <label>背景适配</label>
+          <div class="seg" id="fitSeg">
+            <button data-fit="contain">完整显示</button>
+            <button data-fit="cover">铺满裁切</button>
+            <button data-fit="stretch">拉伸</button>
+            <button data-fit="tile">平铺</button>
+          </div>
+          <small>「完整显示」会保留整张图片不裁切</small>
+        </div>
+
+        <div class="set-row">
+          <label>分类栏位置</label>
+          <div class="seg" id="posSeg">
+            <button data-pos="left">左侧</button>
+            <button data-pos="right">右侧</button>
+            <button data-pos="top">顶部</button>
+          </div>
+        </div>
+
+        <div class="set-row">
+          <label>图标大小 <b id="scaleVal">100%</b></label>
+          <input type="range" id="scaleRange" min="60" max="200" value="100">
+          <small>主界面 Ctrl + 滚轮也可直接缩放</small>
+        </div>
+
+        <div class="set-row">
+          <label>整体颜色</label>
+          <div class="set-inline">
+            <input type="color" class="color-input" id="accentColor" value="#e95420">
+            <span class="set-name">按钮、选中态与高亮使用这个颜色</span>
+          </div>
+        </div>
+
+        <div class="set-row">
+          <label>页面颜色</label>
+          <div class="set-inline">
+            <input type="color" class="color-input" id="pageColor" value="#2c001e">
+            <span class="set-name">主界面背景与面板的基色</span>
+          </div>
+        </div>
+
+        <div class="set-row">
+          <label>搜索候选数量 <b id="candVal">8</b></label>
+          <div class="set-inline">
+            <button class="step-btn" id="btnCandMinus" title="减少">−</button>
+            <input class="set-input cand-input" id="candInput" type="number" min="3" max="30" value="8">
+            <button class="step-btn" id="btnCandPlus" title="增加">+</button>
+          </div>
+          <small>下拉一次显示的条数（3–30），超出后可继续按 ↓ 滚动查看全部结果</small>
+        </div>
+
+        <div class="set-row">
+          <label>候选规则文件</label>
+          <div class="set-inline">
+            <button class="btn ghost" id="btnPickRule">选择规则…</button>
+            <button class="btn ghost" id="btnClearRule">清除</button>
+            <span class="set-name" id="ruleName">未设置</span>
+          </div>
+          <small id="ruleHint">支持 .txt / .json / .csv / .tsv / .ini / .toml；txt 每行：+词=优先，-词=排除，# 注释</small>
+        </div>
+
+        <div class="set-row">
+          <label>启动与关闭</label>
+          <div class="set-inline">
+            <label class="chk"><input type="checkbox" id="autoStartChk"> 开机自动启动</label>
+            <label class="chk"><input type="checkbox" id="closeToTaskbarChk"> 关闭窗口时隐藏到系统托盘</label>
+          </div>
+          <small id="autoStartHint">勾选并保存后写入系统启动项</small>
+          <small>勾选后点 × 只隐藏窗口，程序留在任务栏右下角的小图标里；单击托盘图标或热键可再次唤出</small>
+        </div>
+
+        <div class="set-row">
+          <label>返回上一级按钮</label>
+          <div class="set-inline">
+            <label class="chk"><input type="checkbox" id="followBack" checked> 跟随整体颜色</label>
+            <input type="color" class="color-input" id="backColor" value="#e95420" hidden>
+          </div>
+          <small>取消勾选后才会显示单独的返回按钮颜色</small>
+        </div>
+
+        <div class="set-row">
+          <label>字体</label>
+          <div class="set-inline">
+            <select class="set-input" id="fontFamily" title="全局字体">
+              <option value="">系统默认</option>
+              <option value="Microsoft YaHei UI">微软雅黑 UI</option>
+              <option value="Microsoft YaHei">微软雅黑</option>
+              <option value="DengXian">等线</option>
+              <option value="SimSun">宋体</option>
+              <option value="SimHei">黑体</option>
+              <option value="KaiTi">楷体</option>
+              <option value="FangSong">仿宋</option>
+              <option value="Consolas">Consolas</option>
+              <option value="Segoe UI">Segoe UI</option>
+            </select>
+            <input class="set-input font-size-input" id="fontSize" type="number" min="10" max="24" step="0.5" value="13.5" title="全局字号">
+            <label class="chk"><input type="checkbox" id="fontColorFollow" checked> 跟随文字颜色</label>
+            <input type="color" class="color-input" id="fontColor" value="#e6e6e6" hidden>
+          </div>
+          <small>全局字体、字号与文字颜色；下面可以为每个分区单独覆盖</small>
+        </div>
+
+        <div class="set-row">
+          <label>分区字体</label>
+          <div class="set-inline">
+            <select class="set-input" id="fontPart" title="选择要单独设置的分区">
+              <option value="sidebar">侧栏</option>
+              <option value="pathbar">路径栏与任务标签</option>
+              <option value="file">文件区</option>
+              <option value="settings">设置弹窗</option>
+            </select>
+            <select class="set-input" id="partFamily" title="该分区字体">
+              <option value="">继承全局字体</option>
+              <option value="Microsoft YaHei UI">微软雅黑 UI</option>
+              <option value="Microsoft YaHei">微软雅黑</option>
+              <option value="DengXian">等线</option>
+              <option value="SimSun">宋体</option>
+              <option value="SimHei">黑体</option>
+              <option value="KaiTi">楷体</option>
+              <option value="FangSong">仿宋</option>
+              <option value="Consolas">Consolas</option>
+              <option value="Segoe UI">Segoe UI</option>
+            </select>
+            <input class="set-input font-size-input" id="partSize" type="number" min="10" max="24" step="0.5" placeholder="继承字号" title="该分区字号">
+            <label class="chk"><input type="checkbox" id="partColorFollow" checked> 继承文字颜色</label>
+            <input type="color" class="color-input" id="partColor" value="#e6e6e6" hidden>
+          </div>
+          <small>选择分区后单独设置；留空或勾选继承表示沿用全局</small>
+        </div>
+
+        <div class="set-row">
+          <label>任务标签颜色</label>
+          <div class="set-inline">
+            <label class="chk"><input type="checkbox" id="followRecent" checked> 跟随整体颜色</label>
+            <input type="color" class="color-input" id="recentColor" value="#e95420" hidden>
+          </div>
+          <small>「最近」页顶部的默认最近 / 任务标签颜色；取消勾选后才会显示单独取色</small>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" id="btnRestart">重启应用</button>
+        <button class="btn primary" id="btnSaveSettings">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js?v=26"></script>
+</body>
+</html>
