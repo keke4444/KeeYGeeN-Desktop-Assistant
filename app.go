@@ -29,7 +29,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-var version = "0.13.1"
+var version = "0.13.2"
 
 // App 是暴露给前端的后端对象。
 type App struct {

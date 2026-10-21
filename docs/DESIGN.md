@@ -292,7 +292,7 @@ undo(batchID, cfg):
 - 布局：左栏 `搜索框 / 打开文件夹 / 已打开目录 / 桌面 / home / 分类 / 选中状态 + 移动按钮`；右栏路径栏 + 文件区（底部状态栏已并入侧栏）；侧栏与文件区之间是 `.splitter`，拖动范围 180–520px，写入 `sidebar_width`。
 - 搜索范围：`全局` 扫描桌面（含 home）、已打开文件夹与分类指定目录；`当前` 只扫描当前所在目录（分类同样适用），默认使用「当前」，切换后保存在 localStorage，搜索状态面包屑显示「当前：文件夹名」。
 - 文件右键：调用 `internal/shellmenu` 的原生 Shell 菜单（IContextMenu/IContextMenu2/IContextMenu3 + TrackPopupMenuEx），支持子菜单与第三方扩展；失败时回退内置菜单。为避免卡死 UI，菜单全部在独立的常驻 STA 线程执行（宿主 1×1 离屏窗口作 owner，弹出前临时置前；拿不到前台就取消并回退内置菜单）；每个请求有 `recover` 兜底，菜单 45 秒自动 `WM_CANCELMODE`，前端 60 秒超时复位。文件行走 `ShowShellMenu(paths)`（IShellFolder::GetUIObjectOf），文件区空白处走 `ShowShellMenuBackground(dir)`（BindToObject 得到目录 IShellFolder → CreateViewObject 取 IShellView → GetItemObject(SVGIO_BACKGROUND) 取背景菜单）。
-- 单实例：启动时用 `CreateMutexW`（名称前缀为窗口标题）判断；已有可见实例则还原并置前后退出，若旧进程无可见窗口则允许继续启动，避免残留进程导致打不开。菜单/COM 的所有调用都在独立 STA 线程完成，UI 线程只做界面渲染。
+- 单实例：启动时用 `CreateMutexW`（名称前缀为窗口标题）判断；已有实例时最多等待 6 秒让其主窗口就绪，无论窗口显示还是隐藏在托盘都唤到前台后退出；即使找不到窗口也不再启动第二个实例（避免两个实例争抢全局热键），并弹窗提示从托盘唤出或清理残留进程。菜单/COM 的所有调用都在独立 STA 线程完成，UI 线程只做界面渲染。
 - 删除分类：右键「删除分类…」先弹 `MessageDialog` 确认（默认按钮为取消），确认后 `os.RemoveAll` 删除分类文件夹并清理 `category_targets`、别名、图标等配置；已打开文件夹的 × 仍然只关闭不删除。
 - 侧栏自定义：`custom_folders` 持久化「打开文件夹」加入的目录，`item_aliases` / `item_icons` 保存显示名称与图标，右键菜单支持 自定义图标 / 重命名 / 指定文件夹 / 删除分类（已打开文件夹为关闭）；`hidden_categories` 记录被移除的分类，`category_targets` 记录分类指定的目标目录。
 - 搜索：左栏顶部输入框（防抖 260ms，Ctrl+F 聚焦），后端 `Search(query)` 递归扫描桌面（含 home），多个关键词按空格拆分且全部命中，最多 200 条；输入后按 Tab 唤出候选下拉，可视条数由 `search_candidates`（3–30）决定，可继续 ↑↓ 滚动查看全部结果；− + 切换、Enter 打开、Esc 关闭，条目高亮使用主题色；完整结果显示在文件区。
